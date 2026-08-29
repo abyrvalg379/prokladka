@@ -56,14 +56,30 @@
 
 ### Houdini 20.5+
 
-Установка через Houdini Packages. **Закрой Houdini**, затем:
+**Ручная установка (2 шага):**
+
+1. Скопировать `out/houdini/package/prokladka/houdini/` (целиком) →
+   `C:\Users\<user>\Documents\houdini20.5\prokladka\houdini\`
+2. Создать `C:\Users\<user>\Documents\houdini20.5\packages\prokladka.json`:
+
+```json
+{
+    "env": [
+        {"PROKLADKA": "C:/Users/<user>/Documents/houdini20.5/prokladka/houdini"}
+    ],
+    "path": ["$PROKLADKA"]
+}
+```
+
+Запустить Houdini. Вкладки нет на полке? `+` в строке вкладок → галка **PROKLADKA**.
+
+Либо автоматом при закрытом Houdini:
 
 ```
 "C:\Program Files\Side Effects Software\Houdini 20.5.278\bin\hython.exe" out\houdini\install_prokladka_hou.py
 ```
 
-Открой Houdini — на полке появится вкладка **PROKLADKA**. Подробности:
-`out/houdini/README_HOU.md`.
+Подробности: `out/houdini/README_HOU.md`.
 
 ### Unreal Engine 5.6+
 
