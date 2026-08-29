@@ -122,7 +122,20 @@ def step_shelf_visibility():
         return None, ("Houdini GUI is running — skip default.shelf edit. "
                       "После старта: '+' на панели полок -> галка PROKLADKA (один раз)")
     if not os.path.isfile(DEFAULT_SHELF):
-        return None, "default.shelf not found (первый запуск Houdini?) — поставь галку в '+' меню"
+        # Чистая машина: default.shelf ещё не создан Houdini — создаём сами
+        # с готовым shelfSetEdit, чтобы полка была видна с первого старта.
+        os.makedirs(os.path.dirname(DEFAULT_SHELF), exist_ok=True)
+        content = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<shelfDocument>\n'
+            '  <shelfSetEdit name="shelf_set_prokladka" fileLocation="{loc}">\n'
+            '    <addMemberToolshelf name="prokladka" inPosition="15"/>\n'
+            '  </shelfSetEdit>\n'
+            '</shelfDocument>\n'
+        ).format(loc=DEST_DIR.replace('\\', '/'))
+        with open(DEFAULT_SHELF, 'w', encoding='utf-8') as f:
+            f.write(content)
+        return True, "default.shelf created with shelfSetEdit"
 
     with open(DEFAULT_SHELF, 'r', encoding='utf-8') as f:
         content = f.read()
