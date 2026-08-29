@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Dev-only референсы (сторонний код, не часть дистрибутива)
+work/ref/
+
+# Временные файлы
+*.bak
+*.tmp
+Thumbs.db
