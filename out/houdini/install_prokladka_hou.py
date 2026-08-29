@@ -35,11 +35,11 @@ except ImportError:
 def _pref_dir():
     """Реальная папка префов Houdini ($HOUDINI_USER_PREF_DIR).
 
+    hou.getenv() — авторитетный источник: Houdini вычисляет папку сам
+    (HOME → HOUDINI_USER_PREF_DIR → Documents\houdiniXX.Y на Windows 20.5+)
+    и ПЕРЕЗАПИСЫВАЕТ os.environ при старте, поэтому env-переменная врёт.
     Не всегда ~/houdiniXX.Y: на основном ПК это Documents/houdini20.5.
     """
-    env = os.environ.get('HOUDINI_USER_PREF_DIR')
-    if env:
-        return env
     if hou is not None:
         try:
             v = hou.getenv('HOUDINI_USER_PREF_DIR')
@@ -47,6 +47,9 @@ def _pref_dir():
                 return v
         except Exception:
             pass
+    env = os.environ.get('HOUDINI_USER_PREF_DIR')
+    if env:
+        return env
     return os.path.join(os.path.expanduser('~'), 'houdini20.5')
 
 
