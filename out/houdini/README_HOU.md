@@ -7,34 +7,63 @@ toolbar XML при каждом старте Houdini — переживает о
 
 - Houdini **20.5+** (Python 3.11; для других версий переименовать
   `python3.11libs` под версию Python Houdini)
-- Windows (пути инсталлятора под Windows; на Linux — то же самое руками)
 
 ## Установка
 
-### Способ 1 — headless (рекомендуется, ноль ручных действий)
+### Способ 1 — вручную, 2 шага (рекомендуется)
 
-**Закрой Houdini**, затем:
+**1.** Скопировать папку `out/houdini/package/prokladka/houdini/` (целиком)
+в папку префов Houdini:
+
+```
+<папка скачанного репо>/out/houdini/package/prokladka/houdini
+  →  <pref>/prokladka/houdini
+```
+
+**2.** Создать файл `<pref>/packages/prokladka.json`:
+
+```json
+{
+    "env": [
+        {"PROKLADKA": "C:/Users/<user>/Documents/houdini20.5/prokladka/houdini"}
+    ],
+    "path": ["$PROKLADKA"]
+}
+```
+
+(путь в `env` — куда скопировали на шаге 1, слэши вперёд)
+
+`<pref>` — папка префов Houdini: по умолчанию
+`C:\Users\<user>\Documents\houdini20.5` (Houdini 20.5 на Windows), либо
+`$HOUDINI_USER_PREF_DIR`, если задана.
+
+**3.** Запустить Houdini. Если вкладки PROKLADKA на полке нет — `+` в строке
+вкладок полок → галка **PROKLADKA** (один раз, запоминается).
+
+### Способ 2 — инсталлятором (headless, сам всё сделает)
+
+**Закрой Houdini**, затем в cmd:
 
 ```
 "C:\Program Files\Side Effects Software\Houdini 20.5.278\bin\hython.exe" ^
-  D:\AI\ZCode\Project\prokladka\out\houdini\install_prokladka_hou.py
+  <папка скачанного репо>\out\houdini\install_prokladka_hou.py
 ```
 
-Установит всё, включая видимость полки. Открой Houdini — вкладка PROKLADKA
-уже на полке.
+Инсталлятор скопирует файлы, создаст json и добавит полку в видимый набор —
+после старта Houdini вкладка уже на месте.
 
-### Способ 2 — из запущенного Houdini
+### Способ 3 — из запущенного Houdini
 
 Python Source Editor (`Windows → Python Source Editor`):
 
 ```python
-exec(open(r'D:\AI\ZCode\Project\prokladka\out\houdini\install_prokladka_hou.py').read())
+exec(open(r'<путь к распакованному репо>/out/houdini/install_prokladka_hou.py').read())
 ```
 
-После этого перезапусти Houdini. Если вкладки не видно — `+` на панели
-полок → галка **PROKLADKA** (один раз, запоминается).
+Вывод — в `Windows → Houdini Console`. После — перезапуск Houdini
+(видимость: `+` → галка).
 
-## Что делает инсталлятор
+## Что делает инсталлятор (и что воспроизводит Способ 1)
 
 | Шаг | Куда | Что |
 |-----|------|-----|
@@ -42,9 +71,6 @@ exec(open(r'D:\AI\ZCode\Project\prokladka\out\houdini\install_prokladka_hou.py')
 | Package json | `<pref>/packages/prokladka.json` | регистрация пакета |
 | Shelf visibility | `<pref>/toolbar/default.shelf` | полка в видимый набор (только при закрытом GUI) |
 | Legacy cleanup | `<pref>/scripts/prokladka/` | удаление старой схемы (если была) |
-
-`<pref>` — папка префов Houdini (`$HOUDINI_USER_PREF_DIR`; на основном ПК это
-`Documents\houdini20.5`, не `~\houdini20.5`).
 
 ## Использование
 
@@ -55,15 +81,13 @@ exec(open(r'D:\AI\ZCode\Project\prokladka\out\houdini\install_prokladka_hou.py')
 
 ## Обновление
 
-Перезапустить инсталлятор (любой способ) — идемпотентно, перезапишет файлы.
+Повторить установку (любой способ) — идемпотентно, перезапишет файлы.
 
 ## Troubleshooting
 
 **Вкладки нет после перезапуска** → `+` на панели полок → галка PROKLADKA.
-(Появляется когда инсталлятор запускался при открытом Houdini и не смог
-править default.shelf.)
 
-**`import prokladka` не работает в hython** → проверь `packages/prokladka.json`
+**`import prokladka` не работает** → проверь `packages/prokladka.json`
 и что `<pref>/prokladka/houdini/python3.11libs/prokladka/` существует.
 
 **Панель не открылась** → `Windows → Houdini Console` — там весь traceback.
