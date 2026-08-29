@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- PROKLADKA shelf — FBX bridge Blender <-> Maya <-> Houdini <-> UE.
+       Loaded automatically from the Houdini package (packages/prokladka.json). -->
+
+  <tool name="prokladka_launch" label="PROKLADKA">
+    <script scriptType="python"><![CDATA[import prokladka
+prokladka.launch()]]></script>
+  </tool>
+
+  <toolshelf name="prokladka" label="PROKLADKA">
+    <memberTool name="prokladka_launch"/>
+  </toolshelf>
+</shelfDocument>
