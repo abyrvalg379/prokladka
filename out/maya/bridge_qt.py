@@ -493,6 +493,29 @@ def convert_locators_to_groups(objs) -> None:
                         pass
 
 
+def recent_history_report() -> str:
+    """Форматированная история экспортов (новые сверху)."""
+    try:
+        with open(RECENT_JSON, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        valid = [p for p in (data if isinstance(data, list) else [])
+                 if isinstance(p, str) and os.path.exists(p)]
+        if not valid:
+            return "Export history is empty."
+        import time
+        lines = []
+        for i, p in enumerate(valid, 1):
+            try:
+                st = os.stat(p)
+                stamp = time.strftime("%Y-%m-%d %H:%M", time.localtime(st.st_mtime))
+                lines.append("{}. {} | {} KB | {}".format(
+                    i, os.path.basename(p), max(1, st.st_size // 1024), stamp))
+            except Exception:
+                lines.append("{}. {} | (unavailable)".format(i, p))
+        return chr(10).join(lines)
+    except Exception:
+        return "Export history is empty."
+
 def clear_recent_json() -> None:
     """Очистить общий список экспортов (bridge_last.json)."""
     try:
@@ -1179,11 +1202,19 @@ class BridgePanel(QtWidgets.QWidget):
         clear_btn = QtWidgets.QPushButton("Clear")
         clear_btn.clicked.connect(self._on_clear_recent)
         row.addWidget(clear_btn)
+        hist_btn = QtWidgets.QPushButton("History")
+        hist_btn.clicked.connect(self._show_history)
+        row.addWidget(hist_btn)
         box.addLayout(row)
         self._refresh_recent_combo()
         return box
 
     # ── Import/Export + naming ────────────────────────────────────────────
+    def _show_history(self):
+        cmds.confirmDialog(title="PROKLADKA Export History",
+                           message=recent_history_report(),
+                           button=["OK"], messageAlign="left")
+
     def _on_clear_recent(self):
         ret = QtWidgets.QMessageBox.question(
             self, "PROKLADKA", "Очистить историю экспортов?",

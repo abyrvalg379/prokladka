@@ -199,9 +199,16 @@ class BridgePanel(QtWidgets.QWidget):
         btn_clear = QtWidgets.QPushButton("Clear")
         btn_clear.clicked.connect(self._clear_recent)
         row.addWidget(btn_clear)
+        btn_hist = QtWidgets.QPushButton("History")
+        btn_hist.clicked.connect(self._show_history)
+        row.addWidget(btn_hist)
         box.addLayout(row)
         self._refresh_recent()
         return box
+
+    def _show_history(self):
+        QtWidgets.QMessageBox.information(
+            self, "PROKLADKA Export History", B.recent_history_report())
 
     def _clear_recent(self):
         ret = QtWidgets.QMessageBox.question(
