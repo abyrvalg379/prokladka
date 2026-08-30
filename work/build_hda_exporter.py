@@ -69,6 +69,12 @@ def export(kwargs):
     # 20.5: startnode/sopoutput; старые версии: soppath/file
     _setfirst(rop, ("startnode", "soppath"), sop_path)
     _setfirst(rop, ("sopoutput", "file", "filename"), out_path)
+    ak = rop.parm("exportkind")  # binary: Blender ASCII FBX не читает
+    if ak:
+        ak.set(0)
+    cu = rop.parm("convertunits")  # FBX-cm: Blender получит метры
+    if cu:
+        cu.set(1)
 
     if node.evalParm("userange"):
         s = int(node.evalParm("fstart"))
