@@ -72,6 +72,11 @@ def check_scale(kwargs):
     if mx <= 0.001:
         hou.ui.setStatusMessage("PROKLADKA: geometry is empty")
         return
+    if mx > 50.0:
+        node.parm("scale").set(0.01)
+        hou.ui.setStatusMessage(
+            "PROKLADKA: dims looked like cm - Scale Fix 0.01 applied")
+        return
     msg = "PROKLADKA: dims %.3f x %.3f x %.3f m" % dims
     if mx <= 1.0:
         msg += " | looks small: if it should be meters, set Scale Fix to 100"
