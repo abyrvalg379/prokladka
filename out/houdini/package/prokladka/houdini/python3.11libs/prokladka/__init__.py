@@ -17,6 +17,7 @@ from .prokladka_hou import (
     get_active_sop,
     get_active_lop,
     read_recent_files,
+    clear_recent_json,
     update_recent_json,
     # Константы
     TEMP_DIRECTORY,

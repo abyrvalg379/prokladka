@@ -145,6 +145,16 @@ def update_recent_json(path: str) -> None:
         _ui_status("PROKLADKA recent update: {}".format(e))
 
 
+def clear_recent_json():
+    """Очистить общий список экспортов (bridge_last.json)."""
+    try:
+        with open(RECENT_JSON, "w", encoding="utf-8") as f:
+            json.dump([], f, indent=2)
+        return True
+    except Exception:
+        return False
+
+
 def read_recent_files() -> list:
     """Прочитать bridge_last.json. Возвращает список существующих путей."""
     paths = []

@@ -196,9 +196,21 @@ class BridgePanel(QtWidgets.QWidget):
         btn_refresh = QtWidgets.QPushButton("Refresh")
         btn_refresh.clicked.connect(self._refresh_recent)
         row.addWidget(btn_refresh)
+        btn_clear = QtWidgets.QPushButton("Clear")
+        btn_clear.clicked.connect(self._clear_recent)
+        row.addWidget(btn_clear)
         box.addLayout(row)
         self._refresh_recent()
         return box
+
+    def _clear_recent(self):
+        ret = QtWidgets.QMessageBox.question(
+            self, "PROKLADKA", "Очистить историю экспортов?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if ret != QtWidgets.QMessageBox.Yes:
+            return
+        B.clear_recent_json()
+        self._refresh_recent()
 
     # ── Export ────────────────────────────────────────────────────────────
     def _build_export_section(self) -> _CollapseBox:
