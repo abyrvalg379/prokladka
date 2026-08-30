@@ -493,6 +493,15 @@ def convert_locators_to_groups(objs) -> None:
                         pass
 
 
+def clear_recent_json() -> None:
+    """Очистить общий список экспортов (bridge_last.json)."""
+    try:
+        with open(RECENT_JSON, "w", encoding="utf-8") as f:
+            json.dump([], f, indent=2)
+    except Exception:
+        pass
+
+
 def import_fbx(path: str, plain: bool, unlock_normals: bool,
                loc_to_grp: bool) -> None:
     """
@@ -1167,11 +1176,23 @@ class BridgePanel(QtWidgets.QWidget):
         refresh_btn = QtWidgets.QPushButton("Refresh")
         refresh_btn.clicked.connect(self._on_refresh_recent)
         row.addWidget(refresh_btn)
+        clear_btn = QtWidgets.QPushButton("Clear")
+        clear_btn.clicked.connect(self._on_clear_recent)
+        row.addWidget(clear_btn)
         box.addLayout(row)
         self._refresh_recent_combo()
         return box
 
     # ── Import/Export + naming ────────────────────────────────────────────
+    def _on_clear_recent(self):
+        ret = QtWidgets.QMessageBox.question(
+            self, "PROKLADKA", "Очистить историю экспортов?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if ret != QtWidgets.QMessageBox.Yes:
+            return
+        clear_recent_json()
+        self._refresh_recent_combo()
+
     def _build_io_buttons(self) -> QtWidgets.QWidget:
         w = QtWidgets.QWidget()
         lay = QtWidgets.QVBoxLayout(w)
