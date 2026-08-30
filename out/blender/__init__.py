@@ -416,8 +416,11 @@ class ImportBridgeOperator(Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        fbx_filepath = get_fbx_path()
         props = context.window_manager.bridge_props
+        # Общий recent: последний экспорт из ЛЮБОГО DCC (Houdini/Maya/UE тоже пишут сюда).
+        # Fallback — файл по имени своей сцены (старое поведение).
+        recent = [p for p in _read_recent_fbx() if p]
+        fbx_filepath = recent[0] if recent else get_fbx_path()
         if not os.path.exists(fbx_filepath):
             props.last_status = "ERROR"
             self.report({'ERROR'}, f"Файл не найден: {fbx_filepath}")
@@ -1104,7 +1107,9 @@ class BridgePanel(Panel):
         hint = layout.row()
         hint.scale_y = 0.7
         hint.enabled = False
-        hint.label(text=f"  → {get_scene_asset_name()}_bridge.fbx")
+        _recent = _read_recent_fbx()
+        _target = os.path.basename(_recent[0]) if _recent else f"{get_scene_asset_name()}_bridge.fbx"
+        hint.label(text=f"  → {_target}")
 
         # Legacy scale
         layout.prop(props, "legacy_scale", icon='MOD_OUTLINE')
