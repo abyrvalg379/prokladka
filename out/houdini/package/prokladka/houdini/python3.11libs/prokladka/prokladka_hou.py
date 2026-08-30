@@ -633,6 +633,16 @@ def import_file(path: str, name_hint: str = "") -> hou.Node:
         if ext != 'vdb':
             scale_report = _check_and_fix_scale(sop)
 
+        # Показать импорт во вьюпорте: display на сабнете + фрейм камеры
+        try:
+            imports.setDisplayFlag(True)
+            imports.setSelected(True, clear_all_selected=True)
+            pt = hou.ui.paneTabUnderCursor()
+            if pt and pt.type() == hou.paneTabType.SceneViewer:
+                pt.frameView([imports])
+        except Exception:
+            pass
+
         _ui_status(
             "PROKLADKA: imported {} ({}) | scale: {}".format(
                 os.path.basename(path), ext, scale_report))
