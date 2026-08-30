@@ -12,14 +12,14 @@ toolbar XML при каждом старте Houdini — переживает о
 
 ### Способ 1 — двойной клик (рекомендуется)
 
-**Закрой Houdini**, затем открой (двойной клик):
+Открой (двойной клик):
 
 ```
 out/houdini/install_PROKLADKA.bat
 ```
 
-Установит всё: файлы пакета, `packages/prokladka.json`, видимость полки.
-Запускай Houdini — вкладка PROKLADKA на полке.
+Установит всё: файлы пакета, `packages/prokladka.json`. Затем в Houdini:
+`+` в строке вкладок полок → галка **PROKLADKA** (один раз, запоминается).
 
 Состав: `install_PROKLADKA.bat` (bootstrap) + `install_prokladka_hou.ps1`
 (логика). Работает на любой машине, ничего не нужно править.
@@ -74,14 +74,16 @@ exec(open(r'<путь к распакованному репо>/out/houdini/inst
 Вывод — в `Windows → Houdini Console`. После — перезапуск Houdini
 (видимость: `+` → галка).
 
-## Что делает инсталлятор (и что воспроизводит Способ 1)
+## Что делает инсталлятор (и что воспроизводит Способ 2)
 
 | Шаг | Куда | Что |
 |-----|------|-----|
 | Package copy | `<pref>/prokladka/houdini/` | python3.11libs + toolbar XML |
 | Package json | `<pref>/packages/prokladka.json` | регистрация пакета |
-| Shelf visibility | `<pref>/toolbar/default.shelf` | полка в видимый набор (только при закрытом GUI) |
 | Legacy cleanup | `<pref>/scripts/prokladka/` | удаление старой схемы (если была) |
+
+Видимость полки Houdini всегда делает сам через `+` меню — это стандартное
+поведение платформы (так же ведут себя Labs и другие тулзы).
 
 ## Использование
 
