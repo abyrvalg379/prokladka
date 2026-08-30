@@ -78,6 +78,23 @@ HOUDINI_NAMING_PRESETS = {
 # HELPERS
 # ════════════════════════════════════════════════════════════════════════════
 
+
+def _ui_status(msg):
+    """Статус-бар в GUI, print в headless (hou.ui недоступен в hython)."""
+    try:
+        _ui_status(msg, hou.severityType.Important)
+    except Exception:
+        print("[PROKLADKA] " + str(msg))
+
+
+def _ui_message(msg):
+    """Диалог в GUI, print в headless."""
+    try:
+        _ui_message(msg)
+    except Exception:
+        print("[PROKLADKA] " + str(msg))
+
+
 def _normalize_slashes(path: str) -> str:
     """Windows path → Houdini-friendly (forward slashes)."""
     return path.replace("\\", "/")
@@ -125,7 +142,7 @@ def update_recent_json(path: str) -> None:
         with open(RECENT_JSON, "w", encoding="utf-8") as f:
             json.dump(recent, f, ensure_ascii=False, indent=2)
     except Exception as e:
-        hou.ui.setStatusMessage("PROKLADKA recent update: {}".format(e))
+        _ui_status("PROKLADKA recent update: {}".format(e))
 
 
 def read_recent_files() -> list:
@@ -290,17 +307,22 @@ def export_fbx(sop_path: str, frame_range: tuple = None) -> str:
     # с baked animation. Поэтому без $F4.
 
     rop = _create_rop("fbx", "fbx_export")
-    rop.parm('soppath').set(sop_path)
-    # filmboxfbx использует 'file' или 'filename' в зависимости от версии
-    for parm_name in ('file', 'filename'):
-        if rop.parm(parm_name):
-            rop.parm(parm_name).set(_normalize_slashes(out_path))
+    # 20.5: startnode/sopoutput; старые версии: soppath/file|filename
+    for node_parm in ("startnode", "soppath"):
+        pp = rop.parm(node_parm)
+        if pp:
+            pp.set(sop_path)
+            break
+    for file_parm in ("sopoutput", "file", "filename"):
+        pp = rop.parm(file_parm)
+        if pp:
+            pp.set(_normalize_slashes(out_path))
             break
     _set_frame_range(rop, frame_range or (1, 1))
     rop.render()
 
     update_recent_json(out_path)
-    hou.ui.setStatusMessage("PROKLADKA: FBX exported → {}".format(out_path))
+    _ui_status("PROKLADKA: FBX exported → {}".format(out_path))
     return out_path
 
 
@@ -344,7 +366,7 @@ def export_vdb(sop_path: str, frame_range: tuple = None) -> str:
         update_recent_json(first)
         return first
     update_recent_json(out_path_template)
-    hou.ui.setStatusMessage("PROKLADKA: VDB exported → {}".format(out_path_template))
+    _ui_status("PROKLADKA: VDB exported → {}".format(out_path_template))
     return out_path_template
 
 
@@ -371,7 +393,7 @@ def export_alembic(sop_path: str, frame_range: tuple = None) -> str:
     rop.render()
 
     update_recent_json(out_path)
-    hou.ui.setStatusMessage("PROKLADKA: Alembic exported → {}".format(out_path))
+    _ui_status("PROKLADKA: Alembic exported → {}".format(out_path))
     return out_path
 
 
@@ -398,7 +420,7 @@ def export_usd(lop_path: str, frame_range: tuple = None) -> str:
     rop.render()
 
     update_recent_json(out_path)
-    hou.ui.setStatusMessage("PROKLADKA: USD exported → {}".format(out_path))
+    _ui_status("PROKLADKA: USD exported → {}".format(out_path))
     return out_path
 
 
@@ -474,7 +496,7 @@ def import_file(path: str, name_hint: str = "") -> hou.Node:
     Возвращает созданный SOP node или None при ошибке.
     """
     if not os.path.exists(path):
-        hou.ui.displayMessage("File not found: {}".format(path))
+        _ui_message("File not found: {}".format(path))
         return None
 
     ext = path.lower().rsplit('.', 1)[-1] if '.' in path else ""
@@ -509,7 +531,7 @@ def import_file(path: str, name_hint: str = "") -> hou.Node:
                     sop.parm(parm_name).set(_normalize_slashes(path))
                     break
         else:
-            hou.ui.displayMessage("Unknown format: .{}".format(ext))
+            _ui_message("Unknown format: .{}".format(ext))
             geo.destroy()
             return None
 
@@ -522,7 +544,7 @@ def import_file(path: str, name_hint: str = "") -> hou.Node:
         if ext != 'vdb':
             scale_report = _check_and_fix_scale(sop)
 
-        hou.ui.setStatusMessage(
+        _ui_status(
             "PROKLADKA: imported {} ({}) | scale: {}".format(
                 os.path.basename(path), ext, scale_report))
         print("[PROKLADKA] Import: {} | Scale: {}".format(
@@ -530,7 +552,7 @@ def import_file(path: str, name_hint: str = "") -> hou.Node:
 
         return sop
     except Exception as e:
-        hou.ui.displayMessage("Import failed: {}".format(e))
+        _ui_message("Import failed: {}".format(e))
         geo.destroy()
         return None
 
@@ -609,7 +631,7 @@ def set_primitive_names(geometry: hou.Geometry, base_name: str) -> int:
             prim.setAttribValue('name', "{}_{}".format(base_name, i))
         return len(geometry.prims())
     except Exception as e:
-        hou.ui.setStatusMessage("PROKLADKA: set prim names failed: {}".format(e))
+        _ui_status("PROKLADKA: set prim names failed: {}".format(e))
         return 0
 
 
@@ -637,7 +659,7 @@ def export_current(format_key: str, frame_range: tuple = None) -> str:
             else:
                 raise ValueError("Unknown format: {}".format(format_key))
     except Exception as e:
-        hou.ui.displayMessage("Export failed: {}".format(e))
+        _ui_message("Export failed: {}".format(e))
         return ""
 
 
