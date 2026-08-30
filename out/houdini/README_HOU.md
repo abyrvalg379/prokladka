@@ -85,12 +85,19 @@ exec(open(r'<путь к распакованному репо>/out/houdini/inst
 Видимость полки Houdini всегда делает сам через `+` меню — это стандартное
 поведение платформы (так же ведут себя Labs и другие тулзы).
 
-## Использование
+## Использование — два способа
 
-1. Полка **PROKLADKA** → кнопка **PROKLADKA** → Qt-панель
-2. **Export** — формат (FBX/VDB/Alembic/USD), Animation Frames, активный SOP
-3. **Import** — из recent (общий `bridge_last.json`) или Browse, auto-detect формата
-4. **Naming** — суффиксы `_geo/_vdb/_abc/_usd`, auto-scale fix по bbox
+**Полка PROKLADKA** (быстрые действия, один клик; работают с активным SOP/LOP):
+
+| Кнопка | Действие |
+|--------|----------|
+| PROKLADKA | Открыть Qt-панель |
+| Export FBX / VDB / Alembic / USD | Экспорт выделения в `C:	emp\<scene>_<fmt>.***` |
+| Import Bridge | Импорт последнего экспорта (auto-detect формата, auto-scale) |
+| Apply Naming | Переименовать выделение по Houdini-пресету |
+
+**Qt-панель** (кнопка PROKLADKA) — полный UI: Recent, форматы с frame range,
+Browse, Naming-пресеты, подробные сообщения об ошибках.
 
 ## Обновление
 

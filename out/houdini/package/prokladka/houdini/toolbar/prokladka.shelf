@@ -1,14 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <shelfDocument>
   <!-- PROKLADKA shelf — FBX bridge Blender <-> Maya <-> Houdini <-> UE.
-       Loaded automatically from the Houdini package (packages/prokladka.json). -->
+       Loaded automatically from the Houdini package (packages/prokladka.json).
+       Panel = full UI; other buttons = one-click actions on the active SOP/LOP. -->
 
-  <tool name="prokladka_launch" label="PROKLADKA">
+  <tool name="prokladka_launch" label="PROKLADKA" icon="plk_panel">
     <script scriptType="python"><![CDATA[import prokladka
 prokladka.launch()]]></script>
   </tool>
 
+  <tool name="prokladka_export_fbx" label="Export FBX" icon="plk_fbx">
+    <script scriptType="python"><![CDATA[import prokladka
+try:
+    path = prokladka.export_current("fbx")
+    if path:
+        hou.ui.setStatusMessage("PROKLADKA: " + path, hou.severityType.Important)
+    else:
+        hou.ui.displayMessage("PROKLADKA: export failed (see Houdini Console)")
+except Exception as e:
+    hou.ui.displayMessage("PROKLADKA FBX export:\n" + str(e))]]></script>
+  </tool>
+
+  <tool name="prokladka_export_vdb" label="Export VDB" icon="plk_vdb">
+    <script scriptType="python"><![CDATA[import prokladka
+try:
+    path = prokladka.export_current("vdb")
+    if path:
+        hou.ui.setStatusMessage("PROKLADKA: " + path, hou.severityType.Important)
+    else:
+        hou.ui.displayMessage("PROKLADKA: export failed (see Houdini Console)")
+except Exception as e:
+    hou.ui.displayMessage("PROKLADKA VDB export:\n" + str(e))]]></script>
+  </tool>
+
+  <tool name="prokladka_export_abc" label="Export Alembic" icon="plk_abc">
+    <script scriptType="python"><![CDATA[import prokladka
+try:
+    path = prokladka.export_current("alembic")
+    if path:
+        hou.ui.setStatusMessage("PROKLADKA: " + path, hou.severityType.Important)
+    else:
+        hou.ui.displayMessage("PROKLADKA: export failed (see Houdini Console)")
+except Exception as e:
+    hou.ui.displayMessage("PROKLADKA Alembic export:\n" + str(e))]]></script>
+  </tool>
+
+  <tool name="prokladka_export_usd" label="Export USD" icon="plk_usd">
+    <script scriptType="python"><![CDATA[import prokladka
+try:
+    path = prokladka.export_current("usd")
+    if path:
+        hou.ui.setStatusMessage("PROKLADKA: " + path, hou.severityType.Important)
+    else:
+        hou.ui.displayMessage("PROKLADKA: export failed (see Houdini Console)")
+except Exception as e:
+    hou.ui.displayMessage("PROKLADKA USD export:\n" + str(e))]]></script>
+  </tool>
+
+  <tool name="prokladka_import" label="Import Bridge" icon="plk_import">
+    <script scriptType="python"><![CDATA[import prokladka
+recents = prokladka.read_recent_files()
+if not recents:
+    hou.ui.displayMessage("PROKLADKA: no recent exports (bridge_last.json is empty).\nExport from Blender/Maya first.")
+else:
+    node = prokladka.import_file(recents[0])
+    if node:
+        hou.ui.setStatusMessage("PROKLADKA: imported " + node.path(), hou.severityType.Important)]]></script>
+  </tool>
+
+  <tool name="prokladka_naming" label="Apply Naming" icon="plk_naming">
+    <script scriptType="python"><![CDATA[import prokladka
+try:
+    node = prokladka.get_active_sop()
+except Exception:
+    node = None
+if node is None:
+    hou.ui.setStatusMessage("PROKLADKA: no SOP selected")
+else:
+    n = prokladka.apply_hou_naming(node)
+    hou.ui.setStatusMessage("PROKLADKA: renamed {} nodes".format(n), hou.severityType.Important)]]></script>
+  </tool>
+
   <toolshelf name="prokladka" label="PROKLADKA">
     <memberTool name="prokladka_launch"/>
+    <memberTool name="prokladka_export_fbx"/>
+    <memberTool name="prokladka_export_vdb"/>
+    <memberTool name="prokladka_export_abc"/>
+    <memberTool name="prokladka_export_usd"/>
+    <memberTool name="prokladka_import"/>
+    <memberTool name="prokladka_naming"/>
   </toolshelf>
 </shelfDocument>
