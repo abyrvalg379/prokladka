@@ -95,7 +95,11 @@ soptoolutils.genericTool(kwargs, '$HDA_NAME')]]></script>
 </shelfDocument>
 """
 
-ON_CREATED = """kwargs["node"].setColor(hou.Color((0.30, 0.55, 0.35)))"""
+ON_CREATED = """kwargs["node"].setColor(hou.Color((0.30, 0.55, 0.35)))
+try:
+    kwargs["node"].hdaModule().use_last(kwargs)
+except Exception:
+    pass"""
 
 
 def build():
@@ -117,7 +121,7 @@ def build():
     group = hou.ParmTemplateGroup()
     path_t = hou.StringParmTemplate(
         "path", "Bridge File", 1,
-        default_value=("C:/temp/$HIPNAME_bridge.fbx",),
+        default_value=("C:/temp/$HIPNAME_fbx.fbx",),
         string_type=hou.stringParmType.FileReference)
     group.addParmTemplate(path_t)
     scale_t = hou.FloatParmTemplate(

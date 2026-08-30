@@ -151,7 +151,7 @@ def build():
     group.addParmTemplate(sop_t)
     path_t = hou.StringParmTemplate(
         "path", "Output FBX", 1,
-        default_value=("C:/temp/$HIPNAME_bridge.fbx",),
+        default_value=("C:/temp/$HIPNAME_fbx.fbx",),
         string_type=hou.stringParmType.FileReference)
     group.addParmTemplate(path_t)
     group.addParmTemplate(hou.ToggleParmTemplate(
