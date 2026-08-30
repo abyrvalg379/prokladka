@@ -56,7 +56,10 @@ else:
     if len(recents) == 1:
         picked = 0
     else:
-        sel = hou.ui.selectFromList(recents, default_choice=0, title="PROKLADKA Import Bridge", message="Choose a file to import:")
+        try:
+            sel = hou.ui.selectFromList(recents, title="PROKLADKA Import Bridge", message="Choose a file to import:")
+        except Exception:
+            sel = (0,)
         picked = sel[0] if sel else None
     if picked is None:
         hou.ui.setStatusMessage("PROKLADKA: import cancelled")
