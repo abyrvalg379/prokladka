@@ -142,7 +142,9 @@ def build():
     # Внутренняя сеть: file -> xform -> output (генератор, без входов)
     hda.allowEditingOfContents(True)
     fn = hda.createNode("file", "prk_file")
-    fn.parm("file").setExpression('chs("../path")', hou.exprLanguage.Hscript)
+    fn.parm("file").setExpression(
+        'hou.text.expandString(hou.pwd().parm("../path").eval())',
+        hou.exprLanguage.Python)
     xf = hda.createNode("xform", "prk_xform")
     xf.parm("scale").setExpression('chs("../scale")', hou.exprLanguage.Hscript)
     xf.setInput(0, fn)
@@ -152,6 +154,10 @@ def build():
     outn.setRenderFlag(True)
 
     hda_def.updateFromNode(hda)  # внутренняя сеть -> definition
+    # OnCreated должен исполняться КАК PYTHON (иначе Houdini гонит его как HScript)
+    hda_def.setExtraFileOption("OnCreated/IsPython", True)
+    hda_def.setExtraFileOption("OnCreated/IsScript", True)
+    hda_def.setExtraFileOption("OnCreated/IsExpr", False)
     hda_def.addSection("PythonModule", PYTHON_MODULE)
     hda_def.addSection("Tools.shelf", TOOLS_SHELF)
     hda_def.addSection("IconSVG", ICON_SVG)
