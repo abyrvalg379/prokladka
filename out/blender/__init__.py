@@ -17,6 +17,7 @@ import bpy
 import os
 import sys
 import json
+import time
 from bpy.props import (BoolProperty, StringProperty, IntProperty,
                        CollectionProperty, PointerProperty, EnumProperty)
 from bpy.types import PropertyGroup, Panel, Operator, UIList, AddonPreferences
@@ -1134,10 +1135,17 @@ class BridgePanel(Panel):
                 hint.label(text="  (no recent exports)")
                 return
             for i, path in enumerate(recents[:5]):
+                try:
+                    st = os.stat(path)
+                    info = "  {} | {} KB | {}".format(
+                        os.path.basename(path), max(1, st.st_size // 1024),
+                        time.strftime("%d.%m %H:%M", time.localtime(st.st_mtime)))
+                except Exception:
+                    info = "  " + os.path.basename(path)
                 row = inner.row(align=True)
                 row.scale_y = 0.75
                 row.enabled = False
-                row.label(text="  {}".format(os.path.basename(path)),
+                row.label(text=info,
                           icon='FILE_CACHE' if i == 0 else 'FILE')
             inner.operator("bridge.clear_recent", text="Clear History", icon='TRASH')
 
