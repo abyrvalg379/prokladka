@@ -427,7 +427,36 @@ class ImportBridgeOperator(Operator):
             return {'CANCELLED'}
 
         global_scale = 100.0 if props.legacy_scale else 1.0
-        bpy.ops.import_scene.fbx(filepath=fbx_filepath, global_scale=global_scale)
+        before = set(bpy.data.objects.keys())
+        try:
+            bpy.ops.import_scene.fbx(filepath=fbx_filepath, global_scale=global_scale)
+        except RuntimeError as e:
+            props.last_status = "ERROR"
+            msg = str(e)
+            if "cast_shadow" in msg or "CyclesLightSettings" in msg:
+                self.report({'ERROR'},
+                    "K-Cycles падает на свете из FBX. Убери свет в исходной сцене "
+                    "и переэкспортируй (или обнови K-Cycles).")
+            else:
+                self.report({'ERROR'}, "Импорт не удался: " + msg[:180])
+            return {'CANCELLED'}
+
+        # Правило приёмника: статичные меши -> нода 0/0/1, габариты в мешах
+        imported = [o for o in bpy.data.objects
+                    if o.name not in before and o.type == 'MESH']
+        for o in imported:
+            if any(par.type == 'ARMATURE' for par in o.parents):
+                continue  # скинутые ассеты не трогаем
+            try:
+                if max(o.dimensions) > 50.0:
+                    o.scale = (0.01, 0.01, 0.01)  # FBX в cm прочитан как м
+                bpy.context.view_layer.objects.active = o
+                o.select_set(True)
+                bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+                o.select_set(False)
+            except Exception:
+                pass
+
         props.last_status = "IMPORTED"
         self.report({'INFO'}, f"Импортирован файл: {fbx_filepath}")
         return {'FINISHED'}

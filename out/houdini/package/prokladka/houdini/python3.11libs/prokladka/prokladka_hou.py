@@ -400,6 +400,13 @@ def export_fbx(sop_path: str, frame_range: tuple = None) -> str:
     rop.render()
 
     update_recent_json(out_path)
+    # Гарантия бинарности: Blender ASCII FBX не читает
+    try:
+        with open(out_path, "rb") as fh:
+            if not fh.read(18).startswith(b"Kaydara FBX Binary"):
+                _ui_message("PROKLADKA: exported FBX is ASCII (stale export node?) - Blender will reject it")
+    except Exception:
+        pass
     _ui_status("PROKLADKA: FBX exported → {}".format(out_path))
     return out_path
 
@@ -632,6 +639,19 @@ def import_file(path: str, name_hint: str = "") -> hou.Node:
         scale_report = "skipped (vdb)"
         if ext != 'vdb':
             scale_report = _check_and_fix_scale(sop)
+            # FBX в cm, прочитанный как метры -> гигант: авто-/100
+            try:
+                size = sop.geometry().boundingBox().sizevec()
+                mx = max(abs(size[0]), abs(size[1]), abs(size[2]))
+                if mx > 50.0:
+                    xf = geo.createNode('xform', 'unitfix')
+                    xf.setInput(0, sop)
+                    xf.parm('scale').set(0.01)
+                    xf.setDisplayFlag(True)
+                    xf.setRenderFlag(True)
+                    scale_report += " | auto-scaled /100 (FBX was cm)"
+            except Exception:
+                pass
 
         # Показать импорт во вьюпорте: display на сабнете + фрейм камеры
         try:
