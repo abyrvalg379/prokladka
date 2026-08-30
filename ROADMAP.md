@@ -31,9 +31,12 @@
 **Blender:**
 - [ ] N-панель: полный проход UI после включения (кнопки, пресеты, UV, rig)
 
-**Сквозной тест (regression):**
-- [ ] Один ассет по цепочке: Blender → Maya → Houdini → UE → Blender (round-trip),
-      масштаб и нейминг сходятся во всех точках
+**Сквозной тест (regression) — В ПРОЦЕССЕ:**
+- [x] Blender → Houdini (дрон импортируется, scale-check OK)
+- [x] Houdini → Blender (куб 1.0×1.0×1.0 м, verified headless E2E)
+- [ ] Blender/Houdini → Maya (drone_bridge.fbx ждёт)
+- [ ] → UE (живой редактор)
+- [ ] → обратно в Blender
 
 ---
 
