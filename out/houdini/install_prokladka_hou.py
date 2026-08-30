@@ -3,26 +3,22 @@
 PROKLADKA Houdini Installer — установка через Houdini Packages (как SideFX Labs).
 
 Запуск (любой из способов):
-  1. Головной режим (Houdini ЗАКРЫТ):
+  1. Головной режим:
        "C:/Program Files/Side Effects Software/Houdini 20.5.278/bin/hython.exe" install_prokladka_hou.py
-     → полная установка, включая видимость полки. Ноль ручных действий.
   2. Python Source Editor в GUI:
        exec(open(r'<путь>/install_prokladka_hou.py').read())
-     → установка файлов; видимость полки — галка в '+' меню (один раз).
 
 Что делает:
   1. Копирует package/prokladka/houdini → <pref>/prokladka/houdini
   2. Создаёт <pref>/packages/prokladka.json (Houdini Package)
-  3. Если Houdini закрыт — добавляет полку в видимый набор (default.shelf)
-  4. Чистит legacy-установку scripts/prokladka/ (если была)
+  3. Чистит legacy-установку scripts/prokladka/ (если была)
 
-После установки: перезапустить Houdini → вкладка PROKLADKA на полке.
-Полка и кнопка переживают любые обновления — грузятся из toolbar XML.
+После установки: запусти Houdini -> '+' в строке вкладок полок ->
+галка PROKLADKA (один раз, Houdini запомнит).
 """
 import os
 import json
 import shutil
-import subprocess
 
 try:
     import hou
@@ -36,9 +32,8 @@ def _pref_dir():
     """Реальная папка префов Houdini ($HOUDINI_USER_PREF_DIR).
 
     hou.getenv() — авторитетный источник: Houdini вычисляет папку сам
-    (HOME → HOUDINI_USER_PREF_DIR → Documents\houdiniXX.Y на Windows 20.5+)
-    и ПЕРЕЗАПИСЫВАЕТ os.environ при старте, поэтому env-переменная врёт.
-    Не всегда ~/houdiniXX.Y: на основном ПК это Documents/houdini20.5.
+    (HOME → Documents\houdiniXX.Y на Windows 20.5+) и ПЕРЕЗАПИСЫВАЕТ
+    os.environ при старте, поэтому env-переменная врёт.
     """
     if hou is not None:
         try:
@@ -73,7 +68,6 @@ PREF_DIR = _pref_dir()
 DEST_DIR = os.path.join(PREF_DIR, 'prokladka', 'houdini')
 PACKAGES_DIR = os.path.join(PREF_DIR, 'packages')
 JSON_PATH = os.path.join(PACKAGES_DIR, 'prokladka.json')
-DEFAULT_SHELF = os.path.join(PREF_DIR, 'toolbar', 'default.shelf')
 LEGACY_SCRIPTS = os.path.join(PREF_DIR, 'scripts', 'prokladka')
 
 
@@ -102,64 +96,6 @@ def step_write_package_json():
     return True, JSON_PATH
 
 
-def houdini_gui_running():
-    """Запущен ли GUI Houdini (houdini.exe)."""
-    try:
-        out = subprocess.run(
-            ["tasklist", "/FI", "IMAGENAME eq houdini.exe"],
-            capture_output=True, timeout=15).stdout
-        # Русская Windows отдаёт cp866 — декодируем с ignore, имя процесса ASCII
-        return "houdini.exe" in out.decode("utf-8", "ignore")
-    except Exception:
-        return True  # не смогли проверить — считаем что запущен (безопаснее)
-
-
-def step_shelf_visibility():
-    """
-    Добавить полку PROKLADKA в видимый набор (default.shelf).
-
-    Правка возможна ТОЛЬКО при закрытом GUI — иначе Houdini перезапишет
-    файл из памяти при выходе (как Maya с shelf_Custom.mel).
-    """
-    if houdini_gui_running():
-        return None, ("Houdini GUI is running — skip default.shelf edit. "
-                      "После старта: '+' на панели полок -> галка PROKLADKA (один раз)")
-    if not os.path.isfile(DEFAULT_SHELF):
-        # Чистая машина: default.shelf ещё не создан Houdini — создаём сами
-        # с готовым shelfSetEdit, чтобы полка была видна с первого старта.
-        os.makedirs(os.path.dirname(DEFAULT_SHELF), exist_ok=True)
-        content = (
-            '<?xml version="1.0" encoding="UTF-8"?>\n'
-            '<shelfDocument>\n'
-            '  <shelfSetEdit name="shelf_set_prokladka" fileLocation="{loc}">\n'
-            '    <addMemberToolshelf name="prokladka" inPosition="15"/>\n'
-            '  </shelfSetEdit>\n'
-            '</shelfDocument>\n'
-        ).format(loc=DEST_DIR.replace('\\', '/'))
-        with open(DEFAULT_SHELF, 'w', encoding='utf-8') as f:
-            f.write(content)
-        return True, "default.shelf created with shelfSetEdit"
-
-    with open(DEFAULT_SHELF, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    if 'prokladka.shelf' in content:
-        return True, "shelfSetEdit уже есть"
-
-    edit = (
-        '  <shelfSetEdit name="shelf_set_prokladka" fileLocation="{loc}">\n'
-        '    <addMemberToolshelf name="prokladka" inPosition="15"/>\n'
-        '  </shelfSetEdit>\n'
-    ).format(loc=DEST_DIR.replace('\\', '/'))
-
-    backup = DEFAULT_SHELF + '.bak_prokladka'
-    shutil.copy2(DEFAULT_SHELF, backup)
-    content = content.replace('</shelfDocument>', edit + '</shelfDocument>')
-    with open(DEFAULT_SHELF, 'w', encoding='utf-8') as f:
-        f.write(content)
-    return True, "shelfSetEdit added (backup: {})".format(os.path.basename(backup))
-
-
 def step_cleanup_legacy():
     """Удалить legacy-установку scripts/prokladka/ (до-packages схема)."""
     marker = os.path.join(LEGACY_SCRIPTS, 'prokladka_hou.py')
@@ -178,7 +114,6 @@ def main():
     steps = (
         ("Package copy", step_copy_package),
         ("Package json", step_write_package_json),
-        ("Shelf visibility", step_shelf_visibility),
         ("Legacy cleanup", step_cleanup_legacy),
     )
     failed = False
@@ -198,10 +133,8 @@ def main():
     else:
         print("INSTALLATION COMPLETE")
         print()
-        print("Дальше:")
-        print("  1. Перезапустить Houdini")
-        print("  2. Вкладка PROKLADKA на панели полок (кнопка PROKLADKA)")
-        print("  Если вкладки нет: '+' на панели полок -> галка PROKLADKA")
+        print("Дальше: запусти/перезапусти Houdini ->")
+        print("  '+' в строке вкладок полок -> галка PROKLADKA (один раз).")
 
 
 if __name__ == '__main__':
