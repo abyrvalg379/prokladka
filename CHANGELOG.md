@@ -24,6 +24,11 @@
 
 ## [1.9.1] — 2026-08-30 (Houdini-сторона)
 
+### Added
+- **Полка PROKLADKA: 7 кнопок** — панель + one-click Export FBX/VDB/Alembic/USD
+  + Import Bridge (последний экспорт) + Apply Naming. Свои SVG-иконки
+  (config/Icons, грузятся из пакета). Второй способ использования помимо панели
+
 ### Changed
 - **Установка переведена на Houdini Packages** (как SideFX Labs):
   `packages/prokladka.json` + `<pref>/prokladka/houdini/` (python3.11libs +
