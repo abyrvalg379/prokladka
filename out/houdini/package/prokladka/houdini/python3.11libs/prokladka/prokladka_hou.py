@@ -21,7 +21,7 @@ import hou
 # КОНСТАНТЫ
 # ════════════════════════════════════════════════════════════════════════════
 
-TEMP_DIRECTORY = r"C:\temp"
+TEMP_DIRECTORY = os.environ.get("PROKLADKA_TEMP", r"C:\temp")
 RECENT_JSON    = os.path.join(TEMP_DIRECTORY, "bridge_last.json")
 RECENT_MAX     = 5
 
