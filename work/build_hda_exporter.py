@@ -175,6 +175,9 @@ def build():
 
     hda_def = hda.type().definition()
     hda_def.setParmTemplateGroup(group)
+    hda_def.setExtraFileOption("OnCreated/IsPython", True)
+    hda_def.setExtraFileOption("OnCreated/IsScript", True)
+    hda_def.setExtraFileOption("OnCreated/IsExpr", False)
     hda_def.addSection("PythonModule", PYTHON_MODULE)
     hda_def.addSection("Tools.shelf", TOOLS_SHELF)
     hda_def.addSection("IconSVG", ICON_SVG)
