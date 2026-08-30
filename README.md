@@ -56,7 +56,11 @@
 
 ### Houdini 20.5+
 
-**Ручная установка (2 шага):**
+**Способ 1 — двойной клик:** открыть `out/houdini/install_PROKLADKA.bat` →
+установит всё сам (файлы, пакет, видимость полки). Houdini на момент запуска
+должен быть закрыт.
+
+**Способ 2 — вручную (2 шага):**
 
 1. Скопировать `out/houdini/package/prokladka/houdini/` (целиком) →
    `C:\Users\<user>\Documents\houdini20.5\prokladka\houdini\`
@@ -72,12 +76,6 @@
 ```
 
 Запустить Houdini. Вкладки нет на полке? `+` в строке вкладок → галка **PROKLADKA**.
-
-Либо автоматом при закрытом Houdini:
-
-```
-"C:\Program Files\Side Effects Software\Houdini 20.5.278\bin\hython.exe" out\houdini\install_prokladka_hou.py
-```
 
 Подробности: `out/houdini/README_HOU.md`.
 

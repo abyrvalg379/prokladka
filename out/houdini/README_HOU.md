@@ -10,7 +10,21 @@ toolbar XML при каждом старте Houdini — переживает о
 
 ## Установка
 
-### Способ 1 — вручную, 2 шага (рекомендуется)
+### Способ 1 — двойной клик (рекомендуется)
+
+**Закрой Houdini**, затем открой (двойной клик):
+
+```
+out/houdini/install_PROKLADKA.bat
+```
+
+Установит всё: файлы пакета, `packages/prokladka.json`, видимость полки.
+Запускай Houdini — вкладка PROKLADKA на полке.
+
+Состав: `install_PROKLADKA.bat` (bootstrap) + `install_prokladka_hou.ps1`
+(логика). Работает на любой машине, ничего не нужно править.
+
+### Способ 2 — вручную, 2 шага
 
 **1.** Скопировать папку `out/houdini/package/prokladka/houdini/` (целиком)
 в папку префов Houdini:
@@ -40,7 +54,7 @@ toolbar XML при каждом старте Houdini — переживает о
 **3.** Запустить Houdini. Если вкладки PROKLADKA на полке нет — `+` в строке
 вкладок полок → галка **PROKLADKA** (один раз, запоминается).
 
-### Способ 2 — инсталлятором (headless, сам всё сделает)
+### Способ 3 — инсталлятором hython (headless)
 
 **Закрой Houdini**, затем в cmd:
 
@@ -49,10 +63,7 @@ toolbar XML при каждом старте Houdini — переживает о
   <папка скачанного репо>\out\houdini\install_prokladka_hou.py
 ```
 
-Инсталлятор скопирует файлы, создаст json и добавит полку в видимый набор —
-после старта Houdini вкладка уже на месте.
-
-### Способ 3 — из запущенного Houdini
+### Способ 4 — из запущенного Houdini
 
 Python Source Editor (`Windows → Python Source Editor`):
 
