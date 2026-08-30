@@ -344,6 +344,15 @@ def export_fbx(sop_path: str, frame_range: tuple = None) -> str:
         if pp:
             pp.set(_normalize_slashes(out_path))
             break
+    # Blender-импортёр читает только BINARY FBX, а дефолт ROP — ASCII
+    ak = rop.parm("exportkind")
+    if ak:
+        ak.set(0)
+    # convertunits=1: числа в FBX-cm + корректная декларация юнитов
+    # (проверено: Blender получает ровно 1.0 m; =0 даёт 0.01 m)
+    cu = rop.parm("convertunits")
+    if cu:
+        cu.set(1)
     _set_frame_range(rop, frame_range or (1, 1))
     rop.render()
 
