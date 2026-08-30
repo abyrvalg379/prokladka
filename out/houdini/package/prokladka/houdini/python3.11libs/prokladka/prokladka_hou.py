@@ -193,12 +193,11 @@ def get_active_sop() -> hou.Node:
         if n.type().category().name() == "Sop":
             return n
 
-    # 2. Display flag SOP внутри выделенного /obj/geo
+    # 2. Выделенный /obj/geo: возвращаем ОБЪЕКТ — export запечёт его трансформ
     for n in selected:
         if n.isEditable() and hasattr(n, 'displayNode'):
-            disp = n.displayNode()
-            if disp:
-                return disp
+            if n.displayNode():
+                return n
 
     # 3. Мы внутри /obj/<geo>: display node этого geo
     try:
@@ -323,6 +322,49 @@ def _set_frame_range(rop: hou.Node, frame_range: tuple) -> None:
         rop.parm('f3').set(1)  # step
 
 
+
+def _bake_object_transform(geo_node: hou.Node) -> str:
+    """
+    Для /obj/geo с трансформом: вставить prk_bake_xform после display-ноды
+    и скопировать в него t/r/s/p объекта. Возвращает путь bake-ноды
+    (startnode для ROP), чтобы поворот/масштаб уехали в FBX.
+    Идемпотентно: prk_bake_xform переиспользуется.
+    """
+    disp = geo_node.displayNode()
+    if disp is None:
+        return geo_node.path()
+    bake = geo_node.node("prk_bake_xform")
+    if bake is None:
+        bake = geo_node.createNode("xform", "prk_bake_xform")
+        bake.setInput(0, disp)
+    for src, dst in (("t", "t"), ("r", "r"), ("s", "s"), ("p", "p")):
+        try:
+            pt = geo_node.parmTuple(src)
+            pd = bake.parmTuple(dst)
+            if pt is not None and pd is not None:
+                pd.set(pt.eval())
+        except Exception:
+            pass
+    try:
+        us = geo_node.parm("scale")
+        if us:
+            bake.parm("scale").set(us.eval())
+    except Exception:
+        pass
+    return bake.path()
+
+
+def _export_startnode(sop_path: str) -> str:
+    """
+    Если путь указывает на /obj объект — запечь его трансформ и вернуть
+    bake-ноду. Иначе (SOP внутри сети) вернуть путь как есть.
+    """
+    node = hou.node(sop_path)
+    if node is not None and node.type().category().name() == "Object"             and hasattr(node, "displayNode"):
+        return _bake_object_transform(node)
+    return sop_path
+
+
 def export_fbx(sop_path: str, frame_range: tuple = None) -> str:
     """Экспорт FBX из SOP. Возвращает путь к файлу."""
     if not os.path.exists(TEMP_DIRECTORY):
@@ -333,11 +375,12 @@ def export_fbx(sop_path: str, frame_range: tuple = None) -> str:
     # с baked animation. Поэтому без $F4.
 
     rop = _create_rop("fbx", "fbx_export")
+    start = _export_startnode(sop_path)
     # 20.5: startnode/sopoutput; старые версии: soppath/file|filename
     for node_parm in ("startnode", "soppath"):
         pp = rop.parm(node_parm)
         if pp:
-            pp.set(sop_path)
+            pp.set(start)
             break
     for file_parm in ("sopoutput", "file", "filename"):
         pp = rop.parm(file_parm)
