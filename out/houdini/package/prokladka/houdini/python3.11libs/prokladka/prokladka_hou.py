@@ -184,7 +184,8 @@ def read_recent_files() -> list:
 def get_active_sop() -> hou.Node:
     """
     Получить активный SOP для экспорта.
-    Приоритет: display node выбранного /obj/geo, или первый выделенный SOP.
+    Приоритет: выделенный SOP -> display выбранного /obj/geo -> display geo
+    текущей сети -> единственный geo в сцене.
     """
     # 1. Выделенные SOP nodes
     selected = hou.selectedNodes()
@@ -198,6 +199,31 @@ def get_active_sop() -> hou.Node:
             disp = n.displayNode()
             if disp:
                 return disp
+
+    # 3. Мы внутри /obj/<geo>: display node этого geo
+    try:
+        parent = hou.pwd().parent()
+        if parent is not None and hasattr(parent, 'displayNode'):
+            disp = parent.displayNode()
+            if disp:
+                return disp
+    except Exception:
+        pass
+
+    # 4. Единственный /obj/geo в сцене (не импорты)
+    try:
+        geos = []
+        for c in hou.node('/obj').children():
+            if hasattr(c, 'displayNode') and not c.name().startswith('prokladka_imports'):
+                if c.displayNode():
+                    geos.append(c)
+        if len(geos) == 1:
+            return geos[0].displayNode()
+    except Exception:
+        pass
+
+    raise RuntimeError(
+        "No geometry found. Select a SOP node or an /obj geometry first.")
 
     # 3. Если ничего не выделено — display node текущего /obj geo
     try:
@@ -508,7 +534,18 @@ def import_file(path: str, name_hint: str = "") -> hou.Node:
     if not imports:
         imports = hou.node('/obj').createNode('subnet', 'prokladka_imports')
 
-    # Создать geo контейнер
+    # Существующий imp_<name> -> обновить (smart refresh), иначе создать
+    existing = imports.node('imp_' + base_name)
+    if existing is not None:
+        geo = existing
+        for ch in geo.children():
+            fp = ch.parm('file') or ch.parm('fileName')
+            if fp is not None:
+                fp.set(_normalize_slashes(path))
+                _ui_status(
+                    "PROKLADKA: refreshed {} <- {}".format(
+                        geo.name(), os.path.basename(path)))
+                return ch
     geo = imports.createNode('geo', 'imp_' + base_name)
 
     try:
