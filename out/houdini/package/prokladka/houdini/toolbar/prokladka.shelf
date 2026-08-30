@@ -65,6 +65,9 @@ if not recents:
 else:
     node = prokladka.import_file(recents[0])
     if node:
+        imports = hou.node("/obj/prokladka_imports")
+        if imports:
+            imports.setSelected(True, clear_all_selected=True)
         hou.ui.setStatusMessage("PROKLADKA: imported " + node.path(), hou.severityType.Important)]]></script>
   </tool>
 
@@ -75,7 +78,8 @@ try:
 except Exception:
     node = None
 if node is None:
-    hou.ui.setStatusMessage("PROKLADKA: no SOP selected")
+    hou.ui.displayMessage("PROKLADKA: no geometry found.
+Select a SOP node or an /obj geometry first.")
 else:
     n = prokladka.apply_hou_naming(node)
     hou.ui.setStatusMessage("PROKLADKA: renamed {} nodes".format(n), hou.severityType.Important)]]></script>
