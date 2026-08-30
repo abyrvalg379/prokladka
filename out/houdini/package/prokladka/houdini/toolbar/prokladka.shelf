@@ -85,6 +85,14 @@ else:
     hou.ui.setStatusMessage("PROKLADKA: renamed " + str(n) + " nodes")
 ]]></script>
   </tool>
+  <tool name="prokladka_clear" label="Clear History" icon="plk_clear">
+    <script scriptType="python"><![CDATA[import prokladka
+ret = hou.ui.displayMessage("Clear export history? (bridge_last.json)", buttons=("Clear", "Cancel"))
+if ret == 0:
+    prokladka.clear_recent_json()
+    hou.ui.setStatusMessage("PROKLADKA: recent history cleared")]]></script>
+  </tool>
+
   <toolshelf name="prokladka" label="PROKLADKA">
     <memberTool name="prokladka_launch"/>
     <memberTool name="prokladka_export_fbx"/>
@@ -93,5 +101,6 @@ else:
     <memberTool name="prokladka_export_usd"/>
     <memberTool name="prokladka_import"/>
     <memberTool name="prokladka_naming"/>
+    <memberTool name="prokladka_clear"/>
   </toolshelf>
 </shelfDocument>

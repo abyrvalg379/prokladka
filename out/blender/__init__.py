@@ -409,6 +409,27 @@ class ExportBridgeOperator(Operator):
         return {'FINISHED'}
 
 
+class ClearRecentOperator(Operator):
+    """Очистить историю экспортов (bridge_last.json)."""
+    bl_idname = "bridge.clear_recent"
+    bl_label  = "Clear Export History"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        try:
+            with open(RECENT_JSON, "w", encoding="utf-8") as f:
+                json.dump([], f)
+            # обновить панель
+            context.area.tag_redraw()
+            self.report({'INFO'}, "Export history cleared")
+        except Exception as e:
+            self.report({'ERROR'}, str(e))
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event)
+
+
 class ImportBridgeOperator(Operator):
     """Импорт FBX текущей сцены."""
     bl_idname = "import_scene.bridge_fbx"
@@ -1118,6 +1139,7 @@ class BridgePanel(Panel):
                 row.enabled = False
                 row.label(text="  {}".format(os.path.basename(path)),
                           icon='FILE_CACHE' if i == 0 else 'FILE')
+            inner.operator("bridge.clear_recent", text="Clear History", icon='TRASH')
 
         draw_section(layout, props, "sec_recent_open", "Recent FBX",
                      "RECOVER_LAST", _recent_content)
@@ -1271,6 +1293,7 @@ _classes = (
     BRIDGE_UL_Presets,
     ExportBridgeOperator,
     ImportBridgeOperator,
+    ClearRecentOperator,
     ApplyNamingPresetOperator,
     PresetAddOperator,
     PresetDuplicateOperator,
