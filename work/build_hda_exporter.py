@@ -87,8 +87,7 @@ def export(kwargs):
     _update_recent(out_path)
     try:
         hou.ui.setStatusMessage(
-            "PROKLADKA: FBX exported -> {}".format(out_path),
-            hou.severityType.Important)
+            "PROKLADKA: FBX exported -> {}".format(out_path))
     except Exception:
         print("[PROKLADKA] FBX exported -> " + out_path)
 

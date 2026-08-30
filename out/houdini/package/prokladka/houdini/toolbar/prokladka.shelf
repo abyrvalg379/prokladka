@@ -14,7 +14,7 @@ prokladka.launch()]]></script>
 try:
     path = prokladka.export_current("fbx")
     if path:
-        hou.ui.setStatusMessage("PROKLADKA: " + path, hou.severityType.Important)
+        hou.ui.setStatusMessage("PROKLADKA: " + path)
     else:
         hou.ui.displayMessage("PROKLADKA: export failed (see Houdini Console)")
 except Exception as e:
@@ -26,7 +26,7 @@ except Exception as e:
 try:
     path = prokladka.export_current("vdb")
     if path:
-        hou.ui.setStatusMessage("PROKLADKA: " + path, hou.severityType.Important)
+        hou.ui.setStatusMessage("PROKLADKA: " + path)
     else:
         hou.ui.displayMessage("PROKLADKA: export failed (see Houdini Console)")
 except Exception as e:
@@ -38,7 +38,7 @@ except Exception as e:
 try:
     path = prokladka.export_current("alembic")
     if path:
-        hou.ui.setStatusMessage("PROKLADKA: " + path, hou.severityType.Important)
+        hou.ui.setStatusMessage("PROKLADKA: " + path)
     else:
         hou.ui.displayMessage("PROKLADKA: export failed (see Houdini Console)")
 except Exception as e:
@@ -50,7 +50,7 @@ except Exception as e:
 try:
     path = prokladka.export_current("usd")
     if path:
-        hou.ui.setStatusMessage("PROKLADKA: " + path, hou.severityType.Important)
+        hou.ui.setStatusMessage("PROKLADKA: " + path)
     else:
         hou.ui.displayMessage("PROKLADKA: export failed (see Houdini Console)")
 except Exception as e:
@@ -63,12 +63,22 @@ recents = prokladka.read_recent_files()
 if not recents:
     hou.ui.displayMessage("PROKLADKA: no recent exports (bridge_last.json is empty).\nExport from Blender/Maya first.")
 else:
-    node = prokladka.import_file(recents[0])
+    if len(recents) == 1:
+        picked = [0]
+    else:
+        sel = hou.ui.selectFromList(recents, default_choice=0,
+                                    title="PROKLADKA Import Bridge",
+                                    message="Choose a file to import:")
+        picked = list(sel)
+        if not picked:
+            hou.ui.setStatusMessage("PROKLADKA: import cancelled")
+            return
+    node = prokladka.import_file(recents[picked[0]])
     if node:
         imports = hou.node("/obj/prokladka_imports")
         if imports:
             imports.setSelected(True, clear_all_selected=True)
-        hou.ui.setStatusMessage("PROKLADKA: imported " + node.path(), hou.severityType.Important)]]></script>
+        hou.ui.setStatusMessage("PROKLADKA: imported " + node.path())]]></script>
   </tool>
 
   <tool name="prokladka_naming" label="Apply Naming" icon="plk_naming">
@@ -82,7 +92,7 @@ if node is None:
 Select a SOP node or an /obj geometry first.")
 else:
     n = prokladka.apply_hou_naming(node)
-    hou.ui.setStatusMessage("PROKLADKA: renamed {} nodes".format(n), hou.severityType.Important)]]></script>
+    hou.ui.setStatusMessage("PROKLADKA: renamed {} nodes".format(n))]]></script>
   </tool>
 
   <toolshelf name="prokladka" label="PROKLADKA">
