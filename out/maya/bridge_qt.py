@@ -258,11 +258,25 @@ def apply_naming_preset(objs, preset_name: str = "Default") -> int:
 
 
 def rename_fbxasc_objects(preset_name: str = "Default"):
-    """Применить naming preset к выделению (или всем с FBXASC)."""
+    """Применить naming preset к выделению с детьми (или всем с FBXASC).
+
+    Решение 2026-09-21: Apply Naming всегда рекурсивен — все transform-дети
+    выделения прогоняются через пресет вместе с ним. Идемпотентность
+    (старый суффикс отрезается → добавляется правильный) защищает от двойных
+    суффиксов: уже правильно названные объекты не изменятся.
+    """
     # Приоритет: выделение; если пусто — все с FBXASC
     sel = cmds.ls(selection=True, type="transform") or []
     if not sel:
         sel = [o for o in cmds.ls(type="transform") if "FBXASC" in o]
+    else:
+        # Рекурсия: все transform-потомки выделения (short-имена в Maya
+        # уникальны в пределах сцены, коллизий не бывает).
+        desc = cmds.listRelatives(sel, allDescendents=True,
+                                  type="transform") or []
+        for d in desc:
+            if d not in sel:
+                sel.append(d)
 
     if not sel:
         cmds.warning("Нет выделения и нет объектов с FBXASC.")
