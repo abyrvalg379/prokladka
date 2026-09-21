@@ -2,7 +2,7 @@ schema_version = "1.0.0"
 
 # PROKLADKA — FBX bridge Blender <-> Maya <-> Houdini <-> UE
 id = "prokladka"
-version = "1.9.0"
+version = "1.10.0"
 name = "PROKLADKA"
 tagline = "FBX bridge between Blender and Maya with naming presets"
 maintainer = "Maksim Kovalev"

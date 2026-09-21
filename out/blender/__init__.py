@@ -205,6 +205,23 @@ def apply_preset_to_name(obj, preset) -> str:
     return base
 
 
+def _naming_targets(context):
+    """Выделение + вся ветка детей.
+
+    Решение 2026-09-21: Apply Naming всегда рекурсивен. Идемпотентность
+    apply_preset_to_name защищает от двойных суффиксов — уже правильно
+    названные дети остаются как есть, голые получают суффикс.
+    """
+    targets = list(context.selected_objects)
+    seen = set(targets)
+    for obj in list(targets):
+        for child in obj.children_recursive:
+            if child not in seen:
+                seen.add(child)
+                targets.append(child)
+    return targets
+
+
 # --- Дефолтные пресеты -----------------------------------------------------
 
 def _add_default_preset(presets_col, name, prefix="", s_mesh="_geo",
@@ -480,14 +497,40 @@ class ImportBridgeOperator(Operator):
                 pass
 
         props.last_status = "IMPORTED"
-        self.report({'INFO'}, f"Импортирован файл: {fbx_filepath}")
+
+        # Авто-нейминг при импорте (решение 2026-09-21): активный пресет
+        # ко всем новым объектам, включая детей иерархии.
+        named = 0
+        if props.apply_naming_on_import:
+            prefs = get_addon_preferences(context)
+            if prefs:
+                ensure_default_presets(prefs)
+                try:
+                    idx = int(props.active_preset)
+                except (ValueError, TypeError):
+                    idx = 0
+                if 0 <= idx < len(prefs.presets):
+                    preset = prefs.presets[idx]
+                    imported_all = [o for o in bpy.data.objects
+                                    if o.name not in before]
+                    for obj in imported_all:
+                        new_name = apply_preset_to_name(obj, preset)
+                        if new_name != obj.name:
+                            obj.name = new_name
+                            named += 1
+
+        if named:
+            self.report({'INFO'}, f"Импортирован: {os.path.basename(fbx_filepath)} "
+                                  f"(нейминг '{preset.name}': {named} объектов)")
+        else:
+            self.report({'INFO'}, f"Импортирован файл: {fbx_filepath}")
         return {'FINISHED'}
 
 
 # --- Naming ----------------------------------------------------------------
 
 class ApplyNamingPresetOperator(Operator):
-    """Применить активный пресет нейминга к выделению."""
+    """Применить активный пресет нейминга к выделению и всей ветке детей."""
     bl_idname = "object.apply_naming_preset"
     bl_label  = "Apply Naming Preset"
     bl_options = {'REGISTER', 'UNDO'}
@@ -510,12 +553,14 @@ class ApplyNamingPresetOperator(Operator):
         preset = prefs.presets[idx]
 
         renamed = 0
-        for obj in context.selected_objects:
+        targets = _naming_targets(context)
+        for obj in targets:
             new_name = apply_preset_to_name(obj, preset)
             if new_name != obj.name:
                 obj.name = new_name
                 renamed += 1
-        self.report({'INFO'}, f"Применён '{preset.name}': {renamed} объектов переименовано.")
+        self.report({'INFO'}, f"Применён '{preset.name}': {renamed} объектов "
+                              f"переименовано (выделение + дети = {len(targets)}).")
         return {'FINISHED'}
 
 
@@ -1048,6 +1093,14 @@ class BridgeProperties(PropertyGroup):
         default=False
     )
 
+    apply_naming_on_import: BoolProperty(
+        name="Apply Naming on Import",
+        description=("После импорта сразу применить активный пресет нейминга "
+                     "ко всем новым объектам (включая детей иерархии). "
+                     "Отключи для чужих ассетов, чьи имена трогать нельзя."),
+        default=True,
+    )
+
     active_preset: EnumProperty(
         name="Preset",
         description="Активный пресет нейминга",
@@ -1170,8 +1223,11 @@ class BridgePanel(Panel):
         _target = os.path.basename(_recent[0]) if _recent else f"{get_scene_asset_name()}_bridge.fbx"
         hint.label(text=f"  → {_target}")
 
-        # Legacy scale
-        layout.prop(props, "legacy_scale", icon='MOD_OUTLINE')
+        # Флаги импорта: авто-нейминг + legacy scale
+        opts = layout.column(align=True)
+        opts.scale_y = 0.9
+        opts.prop(props, "apply_naming_on_import", icon='SYNTAX_ON')
+        opts.prop(props, "legacy_scale", icon='MOD_OUTLINE')
 
         # ── Naming (как Maya: dropdown + явная кнопка) ─────────────────
         naming_label = layout.row()

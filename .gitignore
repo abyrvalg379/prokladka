@@ -9,3 +9,7 @@ work/ref/
 *.bak
 *.tmp
 Thumbs.db
+
+work/prokladka/
+work/iso_prefs/
+work/test_naming_bg.py

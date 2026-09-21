@@ -23,8 +23,10 @@
 
 ## Возможности
 
-- **FBX I/O** — экспорт/импорт `C:\temp\<scene>_bridge.fbx` с общим recent-списком
+- **FBX I/O** — экспорт/импорт `C:\temp\<scene>_bridge.fbx` с общим recent-списком — **экспорт Beta**
 - **Naming presets** — редактируемые пресеты нейминга (Default, Plain, Unreal, Dots, Rig)
+- **Recursive naming** — Apply Naming покрывает выделение и всю ветку детей (идемпотентно);
+  Blender: авто-нейминг при импорте (галка, включена по умолчанию)
 - **Universal UV renamer** — конвенции Maya/Blender/Houdini/Unreal/Custom
 - **Rig Transfer** — перенос рига через FBX + JSON recipe (constraints, control shapes)
 - **Multi-format** — Houdini: FBX/VDB/Alembic/USD
