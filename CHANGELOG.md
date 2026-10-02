@@ -82,7 +82,7 @@
 - Plain Scale → **Legacy scale** (понятнее семантика)
 - Две равнозначные кнопки Export/Import вместо одной большой + маленькая
 - Структура проекта: single-file → package (`prokladka/blender/`, `prokladka/maya/`)
-- Нейминг: hardcoded Pipeline → система редактируемых пресетов в AddonPreferences
+- Нейминг: hardcoded пресет → система редактируемых пресетов в AddonPreferences
 
 ### Removed
 - Зависимости от сторонних аддонов: Better FBX, Pies Plus
@@ -93,7 +93,7 @@
 ### Added
 - Аддон Bridge Maya Import/ExportFBX V7
 - FBX I/O с именем файла из сцены (`<scene>_bridge.fbx`)
-- Pipeline-нейминг (hardcoded lowercase + _geo/_grp/_skel)
+- Кастомный нейминг (hardcoded lowercase + _geo/_grp/_skel)
 - Plain Scale чекбокс
 - Recent FBX JSON (`bridge_last.json`)
 

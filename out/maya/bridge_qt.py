@@ -120,7 +120,7 @@ def _append_to_recent_json(path: str) -> None:
 
 
 def _ensure_maya_units_meters() -> None:
-    """Pipeline: Units=метры. Иерархию не трогает."""
+    """Пайплайн: Units=метры. Иерархию не трогает."""
     try:
         current = cmds.currentUnit(query=True, linear=True)
         if current != "meter":
@@ -725,7 +725,7 @@ def apply_material(flags) -> None:
         cmds.warning("Не выбран тип материала.")
         return
 
-    # Использовать существующий материал этого типа или создать с Pipeline-именем
+    # Использовать существующий материал этого типа или создать со слотовым именем
     all_mats = cmds.ls(materials=True)
     found = next((m for m in all_mats if cmds.nodeType(m) == mat_type), None)
     material = found if found else cmds.shadingNode(mat_type, asShader=True,
@@ -816,7 +816,7 @@ def _copy_common_attributes(old_mat, new_mat) -> None:
 
 # ── PBR Texture Assigner (бизнес-логика) ────────────────────────────────────
 
-# Слоты Pipeline: key (подстрока в имени файла) → (attr material node, output channel)
+# Слоты: key (подстрока в имени файла) → (attr material node, output channel)
 PBR_SLOTS = {
     'basecolor':    ('baseColor', 'outColor'),
     'basecolour':   ('baseColor', 'outColor'),
@@ -854,7 +854,7 @@ def _is_udim(path_or_name: str) -> bool:
 
 
 def _set_file_colorspace(fn: str, key: str, file_path: str) -> None:
-    """Pipeline colorSpace: линейные данные → Raw, sRGB albedo → sRGB."""
+    """colorSpace: линейные данные → Raw, sRGB albedo → sRGB."""
     try:
         ext = _file_ext(file_path)
         if (key == 'normal' or ext in ("exr", "hdr")

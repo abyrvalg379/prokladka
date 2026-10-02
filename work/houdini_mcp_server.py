@@ -20,7 +20,7 @@ Response: {"status": "success", "result": {...}} or
 All command handlers run on Houdini's main thread via
 hou.ui.queueToMainThread, so UI and node operations are safe.
 
-Author: Maksim Kovalev, FLOMASTER. PROKLADKA project.
+Author: Maksim Kovalev. PROKLADKA project.
 """
 
 import json

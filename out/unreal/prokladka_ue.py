@@ -243,7 +243,7 @@ def import_fbx(fbx_path: str, asset_name: str = "",
             except Exception:
                 actual_type = "static"
         else:
-            actual_type = "static"  # по умолчанию Static (Pipeline пайплайн — окружение/props)
+            actual_type = "static"  # по умолчанию Static (пайплайн — окружение/props)
 
     # Импорт
     try:
