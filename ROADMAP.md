@@ -91,8 +91,6 @@
       (Unreal-LiveLink-for-Blender). Решить: отдельный продукт или ветка PROKLADKA
 - [ ] **PROKLADKA-light для 3ds Max** (отложено): мост Max → Maya, ~250 строк,
       параметры прописаны в `zcode_md_general/projects/prokladka.md`
-- [ ] **Монетизация**: остаётся free/portfolio ИЛИ Gumroad-профиль (Blendini-модель:
-      $49, perpetual, updates free, Discord). Решить после Этапа 1 по отклику
 
 ---
 
