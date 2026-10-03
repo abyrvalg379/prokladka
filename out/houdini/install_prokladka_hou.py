@@ -55,7 +55,7 @@ except NameError:
     # exec() контекст — искать по известным путям
     _SRC = None
     for candidate in (
-        r'D:\AI\ZCode\Project\prokladka\out\houdini',
+        os.environ.get('PROKLADKA_HOU_SRC', ''),
         os.path.join(os.path.expanduser('~'), 'Downloads'),
     ):
         if os.path.isfile(os.path.join(candidate, 'install_prokladka_hou.py')):

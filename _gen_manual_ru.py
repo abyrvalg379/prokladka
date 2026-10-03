@@ -5,10 +5,12 @@ r"""PROKLADKA - Руководство пользователя (RU). Генер
 """
 
 import json
+import os
 
 import _docstyle as ds
 
-OUT = r'D:\AI\ZCode\Project\prokladka\docs\PROKLADKA_Manual_RU.docx'
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                   'docs', 'PROKLADKA_Manual_RU.docx')
 
 
 def h1(doc, text):

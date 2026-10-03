@@ -6,7 +6,7 @@ Wire-compatible TCP bridge with the Blender MCP addon protocol
 Houdini entry in the ZCode MCP config.
 
 Usage (Houdini Python Shell / Python Source Editor / shelf):
-    exec(open(r"D:/AI/ZCode/Project/PROKLADKA/work/houdini_mcp_server.py",
+    exec(open(r"<path to>/prokladka/work/houdini_mcp_server.py",
               encoding="utf-8").read())
 
 Commands:

@@ -18,7 +18,11 @@ import shutil
 
 import hou
 
-ROOT = r"D:\AI\ZCode\Project\prokladka"
+# repo root (work/..); via exec() there is no __file__ - set PROKLADKA_ROOT
+try:
+    ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+except NameError:
+    ROOT = os.environ.get("PROKLADKA_ROOT", os.getcwd())
 HDA_DIR = os.path.join(ROOT, "out", "houdini", "hda")
 HDA_FILE = os.path.join(HDA_DIR, "prokladka_import.hda")
 PKG_OTLS = os.path.join(ROOT, "out", "houdini", "package", "prokladka", "houdini", "otls")
